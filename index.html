@@ -1,0 +1,150 @@
+<html>
+<head>
+    <title>STL Viewer</title>
+    <style>
+        body { margin: 0; }
+        canvas { width: 100%; height: 100% }
+    </style>
+    <!-- https://github.com/mrdoob/three.js/ -->
+    <script src="js/three.min.js"></script>
+    <script src="js/loaders/STLLoader.js"></script>
+    <script src="js/Detector.js"></script>
+    <script src="js/libs/stats.min.js"></script>
+    <!-- from https://github.com/jaanga/cookbook/tree/gh-pages/cardboard/ -->
+    <script src="js/StereoEffect.js"></script>
+    <script src="js/DeviceOrientationControls.js"></script>
+    <script src="js/DetectScreenSize.js"></script>
+</head>
+<body>
+<!-- https://github.com/jordan314/Cardboard-STL-Viewer -->
+<script>
+
+    var scene, camera, renderer;
+    var geometry, material, mesh;
+    var info;
+    var effect;
+
+    var controls = undefined;
+
+    var hasOrientation = function(evt) {
+        if (!evt.alpha) {
+            return;
+        }
+        window.removeEventListener('deviceorientation', hasOrientation, false);
+        controls = new THREE.DeviceOrientationControls( camera );
+        controls.connect();
+    };
+
+    init();
+    animate();
+
+    function init() {
+
+        scene = new THREE.Scene();
+        scene.autoUpdate = false;
+        camera = new THREE.PerspectiveCamera( 450, window.innerWidth / window.innerHeight, 1, 10000 );
+        camera.position.z = 100;
+
+        geometry = new THREE.BoxGeometry( 200, 200, 200 );
+
+        document.body.style.cssText = 'font: 600 12pt monospace; margin: 0; overflow: hidden' ;
+
+        var info = document.body.appendChild( document.createElement( 'div' ) );
+
+        info.style.cssText = 'left: 10px; position: absolute; ';
+        info.innerHTML = '<div style="display:none" id=msg>readout</div>';
+
+        var container = document.body.appendChild( document.createElement( 'div' ) );
+
+        var loader = new THREE.STLLoader();
+        material = new THREE.MeshPhongMaterial( { color: 0xff0000, specular: 0x111111, shininess: 30, shading: THREE.FlatShading });
+
+        //loader.load( 'ring_and_iphone_holder-size-9.stl', function ( geometry ) {
+        loader.load('engagement-robot-pair2.stl', function(geometry) {
+            mesh = new THREE.Mesh( geometry, material );
+            mesh.rotation.set(1.57079633, 1.57079633 * 2, 0);
+            scene.add( mesh );
+        });
+
+        var lights = [];
+            lights[0] = new THREE.PointLight( 0xffffff, 1, 0 );
+            lights[1] = new THREE.PointLight( 0xffffff, 1, 0 );
+            lights[2] = new THREE.PointLight( 0xffffff, 1, 0 );
+            
+            lights[0].position.set( 0, 200, 0 );
+            lights[1].position.set( 100, 200, 100 );
+            lights[2].position.set( -100, -200, -100 );
+
+            scene.add( lights[0] );
+            scene.add( lights[1] );
+            scene.add( lights[2] );
+
+        renderer = new THREE.WebGLRenderer({ alpha: 1, antialias: true, clearColor: 0xffffff });
+        renderer.setSize( window.innerWidth, window.innerHeight );
+
+        effect = new THREE.StereoEffect( renderer );
+        effect.separation = 0.2;
+        effect.targetDistance = 50;
+        effect.setSize( window.innerWidth, window.innerHeight );
+
+        window.addEventListener('deviceorientation', hasOrientation, false);
+
+        window.addEventListener( 'touchend', function () {
+            if ( isFullscreen === false ) {
+                document.body.webkitRequestFullscreen();
+                isFullscreen = true;
+                console.log('fullscreen true');
+            } else {
+                document.webkitExitFullscreen();
+                isFullscreen = false;
+                console.log('fullscreen false');
+            }
+        } );
+
+        window.addEventListener( 'resize', function () {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            effect.setSize( window.innerWidth, window.innerHeight );
+        }, false );
+
+        document.body.appendChild( renderer.domElement );
+
+    }
+
+    function animate() {
+
+        requestAnimationFrame( animate );
+
+        mesh.rotation.z += 0.01;
+        //mesh.rotation.y += 0.02;
+        if ( controls !== undefined ) {
+            controls.update();
+            /*
+            msg.innerHTML =
+                '<table><tr><td>' +
+                'oQ.w ' + controls.orientationQuaternion.w.toFixed(3) + '<br>' +
+                'oQ.x ' + controls.orientationQuaternion.x.toFixed(3) + '<br>' +
+                'oQ.y ' + controls.orientationQuaternion.y.toFixed(3) + '<br>' +
+                'oQ.z ' + controls.orientationQuaternion.z.toFixed(3) + '<br>' +
+                'aQ.w ' + controls.alignQuaternion.w.toFixed(3) + '<br>' +
+                'aQ.x ' + controls.alignQuaternion.x.toFixed(3) + '<br>' +
+                'aQ.y ' + controls.alignQuaternion.y.toFixed(3) + '<br>' +
+                'aQ.z ' + controls.alignQuaternion.z.toFixed(3) + '<br>' +
+                '</td>' +
+                '<td>' +
+                'alpha ' + controls.alpha.toFixed(3) + '<br>' +
+                'beta ' + controls.beta.toFixed(3) + '<br>' +
+                'gamma ' + controls.gamma.toFixed(3) + '<br>' +
+                'movSpd ' + controls.movementSpeed + '<br>' +
+                'rllSpd ' + controls.rollSpeed + '<br>' +
+                '</td></tr></table>' +
+            '';
+            */
+        }
+        effect.render( scene, camera );
+        //renderer.render( scene, camera );
+
+    }
+
+</script>
+</body>
