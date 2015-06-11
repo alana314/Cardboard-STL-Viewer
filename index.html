@@ -9,7 +9,6 @@
         body { margin: 0; }
         canvas { width: 100%; height: 100% }
         .formloader {
-            height: 40px;
             background: rgba(255, 255, 255, .8);
             font-family: arial;
             font-size: 10px;
@@ -20,6 +19,24 @@
         }
         input[type=text] {
             width: 210px;
+            height: 30px;
+        }
+        button {
+            height: 30px;
+            background-color: rgba(182, 255, 182, 0.6);
+            border: 0;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: rgba(182, 255, 182, 1);
+        }
+        p.zoom {
+            margin-top: 8px;
+        }
+
+        button.zoombutton {
+            width: 30px;
+            margin-left: 10px;
         }
     </style>
     <!-- https://github.com/mrdoob/three.js/ -->
@@ -36,6 +53,7 @@
 <!-- https://github.com/jordan314/Cardboard-STL-Viewer -->
 <div class="formloader">
     Load STL <input type="text" name="stlfile" id="stlfile" value="http://thingiverse-production-new.s3.amazonaws.com/assets/c4/4c/76/de/9b/jordanb.stl" /> <button id="load" onclick="loadstl();">Load</button>
+    <p class="zoom">Zoom <button class="zoombutton" onclick="zoomin();">+</button> <button class="zoombutton" onclick="zoomout();">-</button></p>
 
 </div>
 <script>
@@ -87,9 +105,9 @@
             scene.add( mesh );
         });
 
-var grid = new THREE.GridHelper(500, 10);
-grid.position.y = -40;
-scene.add(grid);
+        var grid = new THREE.GridHelper(500, 10);
+        grid.position.y = -40;
+        scene.add(grid);
 
         var lights = [];
             lights[0] = new THREE.PointLight( 0xffffff, 1, 0 );
@@ -138,6 +156,7 @@ scene.add(grid);
 
         document.body.appendChild( renderer.domElement );
 
+        /*
         document.getElementsByTagName('canvas')[0].addEventListener('gestureend', function(e) {
             if (e.scale < 1.0) {
                 camera.position.z = camera.position.z + (e.scale * 30);
@@ -145,6 +164,7 @@ scene.add(grid);
                 camera.position.z = camera.position.z - (e.scale * 30);
             }
         }, false);
+        */
 
         
 
@@ -201,6 +221,13 @@ scene.add(grid);
         });
     }
 
+    function zoomin(){
+        camera.position.z -= 10;
+    }
+
+    function zoomout(){
+        camera.position.z += 10;
+    }
 </script>
 </body>
 </html>
