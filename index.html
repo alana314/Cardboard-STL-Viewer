@@ -1,23 +1,25 @@
-<html>
+<!doctype html>
+<html lang="en-US">
 <head>
     <title>STL Viewer</title>
+    <meta name="HandheldFriendly" content="True">
+        <meta name="MobileOptimized" content="320">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
     <style>
         body { margin: 0; }
         canvas { width: 100%; height: 100% }
         .formloader {
-            position: fixed;
-            top: 0;
-            left: 0;
+            height: 40px;
             background: rgba(255, 255, 255, .8);
             font-family: arial;
             font-size: 10px;
-            width: 320px;
+            width: 100%;
             border-right: 1px solid rgba(212,212,212, .8);
             border-bottom: 1px solid rgba(212,212,212, .8);
             padding: 5px;
         }
         input[type=text] {
-            width: 220px;
+            width: 210px;
         }
     </style>
     <!-- https://github.com/mrdoob/three.js/ -->
@@ -39,7 +41,7 @@
 <script>
 
     var scene, camera, renderer, loader;
-    var geometry, material, mesh;
+    var geometry, material, mesh, plane;
     var info;
     var effect;
 
@@ -52,6 +54,7 @@
         window.removeEventListener('deviceorientation', hasOrientation, false);
         controls = new THREE.DeviceOrientationControls( camera );
         controls.connect();
+
     };
 
     init();
@@ -83,6 +86,10 @@
             mesh.rotation.set(1.57079633, 1.57079633 * 2, 0);
             scene.add( mesh );
         });
+
+var grid = new THREE.GridHelper(500, 10);
+grid.position.y = -40;
+scene.add(grid);
 
         var lights = [];
             lights[0] = new THREE.PointLight( 0xffffff, 1, 0 );
@@ -128,7 +135,18 @@
             effect.setSize( window.innerWidth, window.innerHeight );
         }, false );
 
+
         document.body.appendChild( renderer.domElement );
+
+        document.getElementsByTagName('canvas')[0].addEventListener('gestureend', function(e) {
+            if (e.scale < 1.0) {
+                camera.position.z = camera.position.z + (e.scale * 30);
+            }else{
+                camera.position.z = camera.position.z - (e.scale * 30);
+            }
+        }, false);
+
+        
 
     }
 
