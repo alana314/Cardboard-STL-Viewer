@@ -4,6 +4,21 @@
     <style>
         body { margin: 0; }
         canvas { width: 100%; height: 100% }
+        .formloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: rgba(255, 255, 255, .8);
+            font-family: arial;
+            font-size: 10px;
+            width: 320px;
+            border-right: 1px solid rgba(212,212,212, .8);
+            border-bottom: 1px solid rgba(212,212,212, .8);
+            padding: 5px;
+        }
+        input[type=text] {
+            width: 220px;
+        }
     </style>
     <!-- https://github.com/mrdoob/three.js/ -->
     <script src="js/three.min.js"></script>
@@ -17,9 +32,13 @@
 </head>
 <body>
 <!-- https://github.com/jordan314/Cardboard-STL-Viewer -->
+<div class="formloader">
+    Load STL <input type="text" name="stlfile" id="stlfile" value="http://thingiverse-production-new.s3.amazonaws.com/assets/c4/4c/76/de/9b/jordanb.stl" /> <button id="load" onclick="loadstl();">Load</button>
+
+</div>
 <script>
 
-    var scene, camera, renderer;
+    var scene, camera, renderer, loader;
     var geometry, material, mesh;
     var info;
     var effect;
@@ -56,10 +75,9 @@
 
         var container = document.body.appendChild( document.createElement( 'div' ) );
 
-        var loader = new THREE.STLLoader();
+        loader = new THREE.STLLoader();
         material = new THREE.MeshPhongMaterial( { color: 0xff0000, specular: 0x111111, shininess: 30, shading: THREE.FlatShading });
 
-        //loader.load( 'ring_and_iphone_holder-size-9.stl', function ( geometry ) {
         loader.load('engagement-robot-pair2.stl', function(geometry) {
             mesh = new THREE.Mesh( geometry, material );
             mesh.rotation.set(1.57079633, 1.57079633 * 2, 0);
@@ -101,6 +119,9 @@
             }
         } );
 
+        window.addEventListener('DOMMouseScroll', mousewheel, false);
+        window.addEventListener('mousewheel', mousewheel, false);
+
         window.addEventListener( 'resize', function () {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
@@ -109,6 +130,13 @@
 
         document.body.appendChild( renderer.domElement );
 
+    }
+
+    function mousewheel(e) {
+        if(e.deltaY > 0)
+            camera.position.z ++;
+        else
+            camera.position.z --;
     }
 
     function animate() {
@@ -142,9 +170,19 @@
             */
         }
         effect.render( scene, camera );
-        //renderer.render( scene, camera );
 
+    }
+
+    function loadstl(){
+        scene.remove(mesh);
+        loader.load(document.getElementById('stlfile').value, function(geometry) {
+            mesh = new THREE.Mesh( geometry, material );
+            mesh.rotation.set(1.57079633, 1.57079633 * 2, 0);
+            camera.position.z = 40;
+            scene.add( mesh );
+        });
     }
 
 </script>
 </body>
+</html>

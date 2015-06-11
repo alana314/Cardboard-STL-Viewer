@@ -1,6 +1,8 @@
 # Cardboard-STL-Viewer
 A quick hack for viewing an STL file with Google Cardboard.
 
+Scroll to zoom. Enter in a URL to load a new STL file.
+
 This uses Three JS to display an STL file:  
 https://github.com/mrdoob/three.js/
 
